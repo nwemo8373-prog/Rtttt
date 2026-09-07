@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محمد ❤️ شهد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700&family=El+Messiri:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --bg-color: #0f0a0e;
+            --card-bg: #1a1219;
+            --accent-color: #ff3366;
+            --accent-glow: rgba(255, 51, 102, 0.4);
+            --secondary-glow: rgba(238, 77, 156, 0.2);
+            --text-color: #fce4ec;
+            --text-muted: #b08d9d;
+            --border-color: #33202b;
+            --app-font: 'Cairo', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--app-font);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 10%, #2b1122 0%, var(--bg-color) 70%);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .hidden { display: none !important; }
+
+        .auth-container, .setup-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 35px 25px;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 25px var(--secondary-glow);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            color: var(--text-color);
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ff3366, #ff6b8b);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 5px 20px var(--accent-glow);
+        }
+
+        .btn:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 8px 25px var(--accent-glow); }
+
+        .terms-box {
+            max-height: 100px;
+            overflow-y: auto;
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            text-align: right;
+            border: 1px solid var(--border-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .main-app {
+            width: 100%;
+            max-width: 440px;
+            height: 92vh;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 32px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 30px var(--secondary-glow);
+            position: relative;
+        }
+
+        .app-header {
+            padding: 15px 20px;
+            background: rgba(26, 18, 25, 0.9);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .app-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 90px;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 75px;
+            background: rgba(26, 18, 25, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.3s;
+            flex: 1;
+        }
+
+        .nav-item i { font-size: 20px; }
+        .nav-item.active, .nav-item:hover { color: var(--accent-color); text-shadow: 0 0 10px var(--accent-glow); }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .media-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .media-card:hover { transform: scale(1.02); border-color: var(--accent-color); box-shadow: 0 0 15px var(--secondary-glow); }
+
+        .media-card img, .media-card video {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .media-info {
+            padding: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .message.sent {
+            background: linear-gradient(135deg, #ff3366, #ff6b8b);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .message.received {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message img.sticker {
+            max-width: 130px;
+            border-radius: 12px;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .chat-input-area input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: white;
+            outline: none;
+        }
+        .chat-input-area input[type="text"]:focus { border-color: var(--accent-color); }
+
+        .sticker-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .sticker-btn:hover { color: var(--accent-color); }
+
+        .profile-card {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 12px auto;
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .add-story-btn {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .stories-section {
+            margin-top: 15px;
+            text-align: right;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .story-item {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .love-meter-box {
+            text-align: center;
+            padding: 25px 15px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .heart-btn {
+            background: none;
+            border: none;
+            font-size: 60px;
+            color: var(--accent-color);
+            cursor: pointer;
+            animation: pulse 1.5s infinite;
+            transition: transform 0.2s;
+        }
+
+        .heart-btn:active { transform: scale(0.85); }
+
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px var(--accent-glow)); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 20px var(--accent-glow)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 5px var(--accent-glow)); }
+        }
+
+        .love-percentage {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 15px 0 5px 0;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen" class="auth-container">
+        <h2>محمد ❤️ شهد</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">عالمنا الخاص المليء بالذكريات</p>
+        <div class="input-group">
+            <label>أدخل كود الدخول:</label>
+            <input type="password" id="accessCode" placeholder="الكود السري...">
+        </div>
+        <button class="btn" onclick="verifyCode()">دخول لعالمنا</button>
+        <p id="loginError" style="color: var(--accent-color); margin-top: 12px; font-size: 13px;"></p>
+    </div>
+
+    <!-- شاشة إعداد الحساب -->
+    <div id="setupScreen" class="setup-container hidden">
+        <h2>إعداد حسابنا</h2>
+        <div class="input-group">
+            <label>اسمك الظاهري:</label>
+            <input type="text" id="setupName" placeholder="الاسم...">
+        </div>
+        <div class="input-group">
+            <label>نبذة / وصف عنك:</label>
+            <textarea id="setupBio" placeholder="اكتب نبذة قصيرة تعبر عنك..." rows="2" style="resize:none;"></textarea>
+        </div>
+        <div class="input-group">
+            <label>صورتك الشخصية من الجهاز:</label>
+            <input type="file" id="setupAvatarFile" accept="image/*" style="background:var(--bg-color); padding:8px; border:1px solid var(--border-color); border-radius:10px; color:white; width:100%;">
+        </div>
+        <div class="terms-box">
+            شروط الاستخدام: هذا الموقع مخصص لقصة حبنا والذكريات الخاصة بنا فقط. الحفاظ على الخصوصية والود هو الأساس. بموافقتك أنت تقر بالالتزام التام بذلك.
+        </div>
+        <label class="checkbox-group">
+            <input type="checkbox" id="acceptTerms"> أقر بقبول الشروط والأحكام
+        </label>
+        <button class="btn" onclick="completeSetup()">حفظ وبدء الرحلة</button>
+        <p id="setupError" style="color: var(--accent-color); margin-top: 10px; font-size: 13px;"></p>
+    </div>
+
+    <!-- التطبيق الرئيسي -->
+    <div id="mainApp" class="main-app hidden">
+        <div class="app-header">محمد ❤️ شهد</div>
+        
+        <div class="app-body">
+            <!-- قسم الألبوم -->
+            <div id="albumTab">
+                <div id="uploadSection" style="margin-bottom: 15px; background:var(--bg-color); padding:12px; border:1px solid var(--border-color); border-radius:16px;">
+                    <label style="display:block; margin-bottom:8px; font-size:12px; color:var(--text-muted);">إضافة ذكرى جديدة (صورة أو فيديو):</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="file" id="mediaFileInput" accept="image/*,video/*" style="color:white; flex:1; font-size:12px;">
+                        <button class="btn" style="width: auto; padding: 8px 15px; font-size:13px;" onclick="uploadMediaFile()">رفع</button>
+                    </div>
+                </div>
+                <div id="uploadProgress" style="color:var(--accent-color); font-size:12px; margin-bottom:10px; text-align:center;"></div>
+                <div id="albumGrid" class="album-grid"></div>
+            </div>
+
+            <!-- قسم المحادثة -->
+            <div id="chatTab" class="chat-container hidden">
+                <div id="chatMessages" class="chat-messages"></div>
+                <div id="chatInputArea" class="chat-input-area">
+                    <button class="sticker-btn" title="إرسال ملصق/استيكر" onclick="triggerStickerUpload()">
+                        <i class="fa-solid fa-note-sticky"></i>
+                    </button>
+                    <input type="file" id="stickerInput" accept="image/*" style="display:none;" onchange="uploadSticker(this)">
+                    
+                    <input type="text" id="messageInput" placeholder="اكتب رسالة مليئة بالحب..." onkeypress="checkEnter(event)">
+                    <button class="btn" style="width: auto; padding: 8px 15px;" onclick="sendMessage()">إرسال</button>
+                </div>
+                <div id="ownerNotice" class="hidden" style="text-align: center; color: var(--text-muted); font-size: 12px; padding: 10px; border-top: 1px solid var(--border-color);">
+                    وضع المشاهدة فقط 🤍
+                </div>
+            </div>
+
+            <!-- قسم مقياس الحب -->
+            <div id="loveMeterTab" class="hidden">
+                <div class="love-meter-box">
+                    <h3 style="color:var(--accent-color); margin-bottom:10px;">مقياس مشاعرنا اليوم</h3>
+                    <p style="color:var(--text-muted); font-size:12px; margin-bottom:20px;">اضغط على القلب لاكتشاف نسبة الحب والتناغم اليوم!</p>
+                    
+                    <button class="heart-btn" onclick="calculateLove()"><i class="fa-solid fa-heart"></i></button>
+                    
+                    <div id="loveResult" class="hidden">
+                        <div class="love-percentage" id="lovePercentDisplay">0%</div>
+                        <p id="loveMessage" style="font-size:14px; color:var(--text-color); margin-top:10px;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم الملف الشخصي والتخصيص -->
+            <div id="profileTab" class="hidden">
+                <div class="profile-card">
+                    <div class="avatar-wrapper">
+                        <img id="profileAvatarImg" class="profile-avatar" src="" alt="Avatar">
+                        <button id="addStoryBtn" class="add-story-btn" onclick="triggerStoryUpload()" title="إضافة قصة ستوري جديدة"><i class="fa-solid fa-plus"></i></button>
+                        <input type="file" id="storyFileInput" accept="image/*,video/*" style="display:none;" onchange="uploadStoryFile(this)">
+                    </div>
+                    <h3 id="profileName" style="margin-bottom: 5px;"></h3>
+                    <p id="profileBioDisplay" style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;"></p>
+                    
+                    <div class="input-group" style="text-align:right; margin-bottom:15px;">
+                        <label style="font-size: 12px;">اختر خط التطبيق:</label>
+                        <select id="fontSelector" onchange="changeAppFont(this.value)">
+                            <option value="'Cairo', sans-serif">خط القاهرة (افتراضي)</option>
+                            <option value="'Tajawal', sans-serif">خط تجوال</option>
+                            <option value="'Amiri', serif">خط أميري (كلاسيكي)</option>
+                            <option value="'El Messiri', sans-serif">خط المسيري</option>
+                            <option value="'Aref Ruqaa', serif">خط رقعة</option>
+                        </select>
+                    </div>
+
+                    <div id="editProfileSection" style="margin-bottom: 15px; text-align:right;">
+                        <input type="text" id="editNameInput" placeholder="تعديل الاسم..." style="width:100%; padding:8px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:8px; color:white; font-size:13px; margin-bottom:8px;">
+                        <textarea id="editBioInput" placeholder="تعديل النبذة..." rows="2" style="width:100%; padding:8px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:8px; color:white; font-size:13px; resize:none; margin-bottom:8px;"></textarea>
+                        
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">تغيير كلمة السر:</label>
+                        <input type="password" id="editPasswordInput" placeholder="كلمة سر جديدة (اتركها فارغة إن لم ترد تغييرها)" style="width:100%; padding:8px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:8px; color:white; font-size:13px; margin-bottom:8px;">
+
+                        <button class="btn" style="padding:8px; font-size:13px;" onclick="updateProfileDetails()">حفظ التعديلات</button>
+                    </div>
+
+                    <div class="stories-section">
+                        <label style="font-size: 13px; color: var(--accent-color); font-weight: bold; display:block; margin-bottom:8px;">قصصي (تختفي خلال 24 ساعة):</label>
+                        <div id="userStoriesList"></div>
+                    </div>
+
+                    <button class="btn" style="background: #2a1520; border:1px solid var(--border-color); margin-top:20px;" onclick="logout()">تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- الشريط السفلي -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('album', this)">
+                <i class="fa-solid fa-images"></i>
+                <span>الذكريات</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('chat', this)">
+                <i class="fa-solid fa-comments"></i>
+                <span>الحديث</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('loveMeter', this)">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <span>مقياس الحب</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('profile', this)">
+                <i class="fa-solid fa-user-heart"></i>
+                <span>أنا</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://byesoztsovwhnxrsgnsm.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_38mm264m5JCeJua1QmTWHw_k5iNYJhM";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const firebaseConfig = {
+            databaseURL: "https://nanaa-1f1a5-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function getStoredPasswords() {
+            const saved = localStorage.getItem('shahd_passwords_v2');
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            const defaults = {
+                "mmae": "mmae",
+                "mmaw": "mmaw",
+                "2009": "2009"
+            };
+            localStorage.setItem('shahd_passwords_v2', JSON.stringify(defaults));
+            return defaults;
+        }
+
+        const ACCOUNTS = {
+            "mmae": { id: "mmae", role: "female", name: "شهد", defaultAvatar: "https://i.imgur.com/74dqBA9.png" },
+            "mmaw": { id: "mmaw", role: "male", name: "محمد", defaultAvatar: "https://i.imgur.com/74dqBA9.png" },
+            "2009": { id: "2009", role: "owner", name: "زائر", defaultAvatar: "https://i.imgur.com/74dqBA9.png" }
+        };
+
+        let currentUser = null;
+        let lastMsgCount = 0;
+        let lastAlbumCount = 0;
+
+        window.onload = function() {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+
+            const savedFont = localStorage.getItem('shahd_app_font');
+            if (savedFont) changeAppFont(savedFont);
+
+            const savedUser = localStorage.getItem('shahd_mohamed_user_v2');
+            if(savedUser) {
+                currentUser = JSON.parse(savedUser);
+                checkRouting();
+                initializeAppSession();
+            }
+            window.addEventListener('hashchange', checkRouting);
+        };
+
+        function changeAppFont(fontFamily) {
+            document.documentElement.style.setProperty('--app-font', fontFamily);
+            localStorage.setItem('shahd_app_font', fontFamily);
+            const fontSel = document.getElementById('fontSelector');
+            if (fontSel) fontSel.value = fontFamily;
+        }
+
+        function verifyCode() {
+            const code = document.getElementById('accessCode').value.trim();
+            const passwords = getStoredPasswords();
+
+            let matchedAccountId = null;
+            for (let accId in passwords) {
+                if (passwords[accId] === code) {
+                    matchedAccountId = accId;
+                    break;
+                }
+            }
+
+            if(matchedAccountId) {
+                currentUser = ACCOUNTS[matchedAccountId];
+                
+                const savedProfile = localStorage.getItem('shahd_profile_v2_' + currentUser.id);
+                if(savedProfile) {
+                    currentUser = JSON.parse(savedProfile);
+                }
+
+                localStorage.setItem('shahd_mohamed_user_v2', JSON.stringify(currentUser));
+                
+                if(currentUser.role === 'owner') {
+                    initializeAppSession();
+                    return;
+                }
+
+                const isConfigured = localStorage.getItem('shahd_setup_v2_' + currentUser.id);
+                if(!isConfigured) {
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('setupScreen').classList.remove('hidden');
+                } else {
+                    initializeAppSession();
+                }
+            } else {
+                document.getElementById('loginError').innerText = "الكود غير صحيح.. حاول مرة أخرى";
+            }
+        }
+
+        async function completeSetup() {
+            const name = document.getElementById('setupName').value.trim();
+            const bio = document.getElementById('setupBio').value.trim();
+            const fileInput = document.getElementById('setupAvatarFile');
+            const accept = document.getElementById('acceptTerms').checked;
+
+            if(!name || !accept) {
+                document.getElementById('setupError').innerText = "الرجاء ملء الاسم والموافقة على الشروط!";
+                return;
+            }
+
+            currentUser.name = name;
+            currentUser.bio = bio || "نبضات قلب تحكي قصتنا";
+            currentUser.avatar = currentUser.defaultAvatar;
+
+            if(fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileName = 'avatars/' + Date.now() + '_' + file.name;
+                const { data, error } = await supabaseClient.storage.from('memories').upload(fileName, file);
+                if(!error) {
+                    const { data: publicURL } = supabaseClient.storage.from('memories').getPublicUrl(fileName);
+                    currentUser.avatar = publicURL.publicUrl;
+                }
+            }
+
+            localStorage.setItem('shahd_setup_v2_' + currentUser.id, 'true');
+            localStorage.setItem('shahd_profile_v2_' + currentUser.id, JSON.stringify(currentUser));
+            localStorage.setItem('shahd_mohamed_user_v2', JSON.stringify(currentUser));
+
+            document.getElementById('setupScreen').classList.add('hidden');
+            initializeAppSession();
+        }
+
+        function initializeAppSession() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('setupScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+
+            updateProfileUI();
+
+            if(currentUser.role === 'owner') {
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('chatInputArea').style.display = 'none';
+                document.getElementById('ownerNotice').classList.remove('hidden');
+                document.getElementById('editProfileSection').style.display = 'none';
+                document.getElementById('addStoryBtn').style.display = 'none';
+            }
+
+            if(!window.location.hash) window.location.hash = "#album";
+            loadAlbum();
+            loadMessages();
+            loadUserStories();
+        }
+
+        function updateProfileUI() {
+            document.getElementById('profileName').innerText = currentUser.name;
+            document.getElementById('profileBioDisplay').innerText = currentUser.bio || "نبضات قلب تحكي قصتنا";
+            document.getElementById('profileAvatarImg').src = currentUser.avatar || currentUser.defaultAvatar;
+            document.getElementById('editNameInput').value = currentUser.name;
+            document.getElementById('editBioInput').value = currentUser.bio || "";
+            document.getElementById('editPasswordInput').value = "";
+        }
+
+        function updateProfileDetails() {
+            const newName = document.getElementById('editNameInput').value.trim();
+            const newBio = document.getElementById('editBioInput').value.trim();
+            const newPass = document.getElementById('editPasswordInput').value.trim();
+
+            if(!newName) return;
+
+            currentUser.name = newName;
+            currentUser.bio = newBio;
+
+            if(newPass.length > 0) {
+                let passwords = getStoredPasswords();
+                passwords[currentUser.id] = newPass;
+                localStorage.setItem('shahd_passwords_v2', JSON.stringify(passwords));
+            }
+
+            localStorage.setItem('shahd_profile_v2_' + currentUser.id, JSON.stringify(currentUser));
+            localStorage.setItem('shahd_mohamed_user_v2', JSON.stringify(currentUser));
+            
+            updateProfileUI();
+            alert("تم حفظ التعديلات وتحديث كلمة السر بنجاح ✨");
+        }
+
+        function triggerStoryUpload() {
+            document.getElementById('storyFileInput').click();
+        }
+
+        async function uploadStoryFile(input) {
+            if(input.files.length === 0) return;
+            const file = input.files[0];
+            const fileName = 'stories/' + Date.now() + '_' + file.name;
+            
+            const { data, error } = await supabaseClient.storage.from('memories').upload(fileName, file);
+            if(!error) {
+                const { data: publicURL } = supabaseClient.storage.from('memories').getPublicUrl(fileName);
+                db.ref('shahd_stories/' + currentUser.id).push({
+                    url: publicURL.publicUrl,
+                    timestamp: Date.now()
+                });
+                alert("تم نشر الستوري بنجاح (ستبقى لمدة 24 ساعة) 🤍");
+            } else {
+                alert("فشل رفع الستوري.");
+            }
+            input.value = '';
+        }
+
+        function loadUserStories() {
+            db.ref('shahd_stories/' + currentUser.id).on('value', snapshot => {
+                const container = document.getElementById('userStoriesList');
+                container.innerHTML = '';
+                const data = snapshot.val();
+                const now = Date.now();
+                const twentyFourHours = 24 * 60 * 60 * 1000;
+
+                if(data) {
+                    let hasActive = false;
+                    Object.keys(data).forEach(key => {
+                        const story = data[key];
+                        if(now - story.timestamp < twentyFourHours) {
+                            hasActive = true;
+                            const div = document.createElement('div');
+                            div.className = 'story-item';
+                            div.innerHTML = `
+                                <img src="${story.url}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:5px;">
+                                <button onclick="deleteStory('${key}')" style="background:none; border:none; color:var(--accent-color); cursor:pointer; font-size:11px; float:left;">حذف</button>
+                            `;
+                            container.appendChild(div);
+                        } else {
+                            db.ref('shahd_stories/' + currentUser.id + '/' + key).remove();
+                        }
+                    });
+                    if(!hasActive) {
+                        container.innerHTML = '<p style="color:var(--text-muted); font-size:11px; text-align:center;">لا توجد ستوريز نشطة حالياً..</p>';
+                    }
+                } else {
+                    container.innerHTML = '<p style="color:var(--text-muted); font-size:11px; text-align:center;">لا توجد ستوريز نشطة حالياً..</p>';
+                }
+            });
+        }
+
+        function deleteStory(key) {
+            db.ref('shahd_stories/' + currentUser.id + '/' + key).remove();
+        }
+
+        function checkRouting() {
+            if(!currentUser) return;
+            const hash = window.location.hash;
+            if(hash.startsWith('#photo-')) {
+                openPhotoDetail(hash.replace('#photo-', ''));
+            } else if(hash === '#chat') {
+                switchTab('chat', document.querySelectorAll('.nav-item')[1]);
+            } else if(hash === '#loveMeter') {
+                switchTab('loveMeter', document.querySelectorAll('.nav-item')[2]);
+            } else if(hash === '#profile') {
+                switchTab('profile', document.querySelectorAll('.nav-item')[3]);
+            } else {
+                switchTab('album', document.querySelectorAll('.nav-item')[0]);
+            }
+        }
+
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            document.getElementById('albumTab').classList.add('hidden');
+            document.getElementById('chatTab').classList.add('hidden');
+            document.getElementById('loveMeterTab').classList.add('hidden');
+            document.getElementById('profileTab').classList.add('hidden');
+
+            if(tabName === 'album') {
+                document.getElementById('albumTab').classList.remove('hidden');
+                window.location.hash = "#album";
+            } else if(tabName === 'chat') {
+                document.getElementById('chatTab').classList.remove('hidden');
+                window.location.hash = "#chat";
+            } else if(tabName === 'loveMeter') {
+                document.getElementById('loveMeterTab').classList.remove('hidden');
+                window.location.hash = "#loveMeter";
+            } else if(tabName === 'profile') {
+                document.getElementById('profileTab').classList.remove('hidden');
+                window.location.hash = "#profile";
+            }
+        }
+
+        async function uploadMediaFile() {
+            if(currentUser.role === 'owner') return;
+
+            const fileInput = document.getElementById('mediaFileInput');
+            const progress = document.getElementById('uploadProgress');
+            if(fileInput.files.length === 0) {
+                progress.innerText = "اختر صورة أو فيديو أولاً!";
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const fileName = 'media/' + Date.now() + '_' + file.name;
+            progress.innerText = "جاري رفع اللحظة الجميلة...";
+
+            const { data, error } = await supabaseClient.storage.from('memories').upload(fileName, file);
+            if(error) {
+                progress.innerText = "فشل الرفع! تأكد من إعدادات الـ Supabase Bucket.";
+                return;
+            }
+
+            const { data: publicURL } = supabaseClient.storage.from('memories').getPublicUrl(fileName);
+            
+            const newMediaRef = db.ref('shahd_album').push();
+            await newMediaRef.set({
+                url: publicURL.publicUrl,
+                sender: currentUser.name,
+                timestamp: Date.now()
+            });
+
+            progress.innerText = "تمت إضافة الذكرى بنجاح ✨";
+            fileInput.value = '';
+            setTimeout(() => { progress.innerText = ""; }, 2500);
+        }
+
+        function loadAlbum() {
+            db.ref('shahd_album').on('value', snapshot => {
+                const grid = document.getElementById('albumGrid');
+                grid.innerHTML = '';
+                const data = snapshot.val();
+                
+                if(lastAlbumCount > 0 && snapshot.numChildren() > lastAlbumCount) {
+                    showBrowserNotification("ذكرى جديدة تمت إضافتها للألبوم ✨");
+                }
+                lastAlbumCount = snapshot.numChildren();
+
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const item = data[key];
+                        const card = document.createElement('div');
+                        card.className = 'media-card';
+                        card.onclick = () => { window.location.hash = "#photo-" + key; };
+                        
+                        let senderName = item.sender;
+                        if(senderName === "زائر" || !senderName) {
+                            senderName = "ذكرى مشتركة";
+                        }
+
+                        card.innerHTML = `
+                            <img src="${item.url}" alt="Memory" onerror="this.src='https://via.placeholder.com/200?text=File+Error'">
+                            <div class="media-info">${senderName}</div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                } else {
+                    grid.innerHTML = '<p style="grid-column: span 2; text-align:center; color:var(--text-muted); padding:20px;">الألبوم فارغ، ابدأ برفع أول ذكرى لكم 🤍</p>';
+                }
+            });
+        }
+
+        function openPhotoDetail(id) {
+            db.ref('shahd_album/' + id).once('value', snapshot => {
+                const item = snapshot.val();
+                if(item) {
+                    document.getElementById('albumTab').classList.remove('hidden');
+                    document.getElementById('chatTab').classList.add('hidden');
+                    document.getElementById('loveMeterTab').classList.add('hidden');
+                    document.getElementById('profileTab').classList.add('hidden');
+                    
+                    let senderName = item.sender;
+                    if(senderName === "زائر" || !senderName) {
+                        senderName = "ذكرى مشتركة";
+                    }
+
+                    const grid = document.getElementById('albumGrid');
+                    grid.innerHTML = `
+                        <div style="grid-column: span 2; text-align: center;">
+                            <button class="btn" style="width:auto; margin-bottom:12px; font-size:12px; padding:6px 15px;" onclick="window.location.hash='#album'">العودة للألبوم</button>
+                            <div style="background:var(--bg-color); padding:15px; border-radius:16px; border:1px solid var(--border-color);">
+                                <img src="${item.url}" style="max-width:100%; max-height:50vh; border-radius:10px;">
+                                <p style="margin-top:10px; color:var(--text-muted); font-size:12px;">بواسطة: ${senderName}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function sendMessage() {
+            if(currentUser.role === 'owner') return;
+
+            const text = document.getElementById('messageInput').value.trim();
+            if(!text) return;
+
+            db.ref('shahd_chat').push({
+                senderId: currentUser.id,
+                senderName: currentUser.name,
+                text: text,
+                type: 'text',
+                timestamp: Date.now()
+            });
+            document.getElementById('messageInput').value = '';
+        }
+
+        function triggerStickerUpload() {
+            if(currentUser.role === 'owner') return;
+            document.getElementById('stickerInput').click();
+        }
+
+        async function uploadSticker(input) {
+            if(input.files.length === 0) return;
+            const file = input.files[0];
+            const fileName = 'stickers/' + Date.now() + '_' + file.name;
+            
+            const { data, error } = await supabaseClient.storage.from('memories').upload(fileName, file);
+            if(!error) {
+                const { data: publicURL } = supabaseClient.storage.from('memories').getPublicUrl(fileName);
+                db.ref('shahd_chat').push({
+                    senderId: currentUser.id,
+                    senderName: currentUser.name,
+                    text: publicURL.publicUrl,
+                    type: 'sticker',
+                    timestamp: Date.now()
+                });
+            } else {
+                alert("فشل رفع الملصق.");
+            }
+            input.value = '';
+        }
+
+        function checkEnter(e) {
+            if(e.key === 'Enter') sendMessage();
+        }
+
+        function loadMessages() {
+            db.ref('shahd_chat').on('value', snapshot => {
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = '';
+                const data = snapshot.val();
+
+                if(lastMsgCount > 0 && snapshot.numChildren() > lastMsgCount) {
+                    showBrowserNotification("لديك رسالة جديدة 🤍");
+                }
+                lastMsgCount = snapshot.numChildren();
+
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        const msg = data[key];
+                        const div = document.createElement('div');
+                        const isMe = msg.senderId === currentUser.id;
+                        div.className = `message ${isMe ? 'sent' : 'received'}`;
+                        
+                        if (msg.type === 'sticker') {
+                            div.innerHTML = `<strong>${msg.senderName}:</strong><br><img class="sticker" src="${msg.text}">`;
+                        } else {
+                            div.innerHTML = `<strong>${msg.senderName}:</strong><br>${msg.text}`;
+                        }
+                        
+                        container.appendChild(div);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
+        }
+
+        function calculateLove() {
+            const randomPercent = Math.floor(Math.random() * (100 - 85 + 1)) + 85; 
+            const messages = [
+                "أنتما الثنائي الأجمل والأكثر توازناً بالعالم! ❤️",
+                "عشق يستحق رواية تُحكى كل يوم 💖",
+                "تطابق قلوب وأرواح 100% ✨",
+                "كل يوم يزداد حبكما عمقاً وجمالاً 🌸"
+            ];
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+
+            document.getElementById('lovePercentDisplay').innerText = randomPercent + "%";
+            document.getElementById('loveMessage').innerText = randomMsg;
+            document.getElementById('loveResult').classList.remove('hidden');
+        }
+
+        function showBrowserNotification(text) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("تنبيه من عالم محمد وشهد", {
+                    body: text,
+                    icon: "https://i.imgur.com/74dqBA9.png"
+                });
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            location.reload();
+        }
+    </script>
+</body>
+</html>
